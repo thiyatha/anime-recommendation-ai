@@ -3,32 +3,14 @@
 Use this template to document your project concisely and completely.
 Fill in all required fields. Keep answers short and precise.
 
-## Documentation Hint
-
-Important:
-When possible, reference the corresponding code location directly in your description.
-
-### Example: Reference to a notebook section
-Reference to the header `## Data Preprocessing` in the notebook `analysis.ipynb`:
-
-> See *Data Preprocessing* in
-> [`analysis.ipynb`](analysis.ipynb#data-preprocessing)
-
-### Example: Reference to Python code
-
-Reference to a single line in `model.py`, line 42:
-> [`model.py`, line 42](model.py#L42)
-
-Reference to multiple lines in `train.py`, lines 15-38:
-> [`train.py`, lines 15-38](train.py#L15-L38)
 
 ## Project Metadata
 
 - Project title:  Anime Recommendation AI
 - Student: Thajeena Thiyagarajah
-- GitHub repository URL:
-- Deployment URL:
-- Submission date:
+- GitHub repository URL: https://github.com/thiyatha/anime-recommendation-ai
+- Deployment URL: https://huggingface.co/spaces/thajee/anime-recommendation-ai
+- Submission date: 07.06.2026
 
 ### Mandatory Setup Checks
 
@@ -381,6 +363,10 @@ If the user asks `what anime is this`, the CLIP visual score receives a higher w
 
 ## 3. Deployment
 
+The app is deployed on Hugging Face Spaces using Gradio.
+The main file is app.py.
+The required packages are listed in requirements.txt.
+
 - Main user flow:
   1. User opens the Hugging Face Space.
   2. User enters a natural language anime preference.
@@ -423,9 +409,9 @@ File reference:
 
 ## 4. Execution Instructions
 
-- Environment setup: ```
-bash
-git clone [Insert GitHub repository URL]
+- Environment setup:
+```bash
+git clone [(https://github.com/thiyatha/anime-recommendation-ai)]
 cd anime-recommendation-ai
 python -m venv venv
 source venv/bin/activate
@@ -454,11 +440,11 @@ The deployed version runs on Hugging Face Spaces.
 
 Use this section for exceptional work beyond the core requirements.
 
-- [ ] Third selected block implemented with strong quality
-- [ ] More than two data sources used with clear added value
+- [x] Third selected block implemented with strong quality
+- [x] More than two data sources used with clear added value
 - [ ] A core section is done exceptionally well
 - [ ] Extended evaluation
 - [ ] Ethics, bias, or fairness analysis
-- [ ] Creative or exceptional use case
+- [x] Creative or exceptional use case
 
 Evidence for selected bonus items:
