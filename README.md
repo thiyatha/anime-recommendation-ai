@@ -1,2 +1,8 @@
-# anime-recommendation-ai
-AI-powered anime recommendation app combining NLP, computer vision and numeric machine learning.
+title: Anime Recommendation AI
+emoji: 🎌
+colorFrom: purple
+colorTo: pink
+sdk: gradio
+sdk_version: 6.13.0
+app_file: app.py
+pinned: false
