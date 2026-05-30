@@ -416,17 +416,21 @@ cd anime-recommendation-ai
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+```
 - Data setup: data/anime_data.csv
+
 - Training command(s):
 No separate training command is required.
 The numeric ML models are trained automatically when the app starts.  
 The training logic is implemented in:
 ```text
 ml_model.py
-- Inference/run command(s): python app.py
+```
+- Inference/run command(s): ```python app.py```
+
 - Reproducibility notes:
 The dataset is stored directly in the repository.
-The dataset path is data/anime_data.csv.
+The dataset path is ```data/anime_data.csv```.
 The train/test split uses random_state=42.
 The Random Forest model uses random_state=42.
 CLIP is loaded through Hugging Face Transformers.
