@@ -78,3 +78,4 @@ git clone https://github.com/thiyatha/anime-recommendation-ai.git
 cd anime-recommendation-ai
 pip install -r requirements.txt
 python app.py
+```
