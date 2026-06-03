@@ -61,8 +61,9 @@ Third block selected:
 
   1. The NLP block analyzes the user input using Keyword Matching, TF-IDF similarity, and OpenAI structured preference extraction.
   2. The Numeric ML block predicts anime scores using structured features such as episodes, members, and mood levels.
-  3. The Computer Vision block is optional and uses CLIP to compare an uploaded image with anime titles and metadata. If no image is uploaded, the visual score remains neutral.
-  4. The final recommendation score combines NLP score, mood score, ML numeric score, and CLIP visual score.
+  3. The Jikan API is used as an external data source to enrich the recommendation output with additional anime metadata.
+  4. The Computer Vision block is optional and uses CLIP to compare an uploaded image with anime titles and metadata. If no image is uploaded, the visual score remains neutral.
+  5. The final recommendation score combines NLP score, mood score, ML numeric score, and CLIP visual score.
 
 - Data and output flow between blocks:
 ```text
