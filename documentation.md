@@ -50,7 +50,7 @@ Third block selected:
   The system should:
   - accept a natural language anime preference,
   - use OpenAI and classical NLP methods to understand the user request,
-  - compare numeric ML models for anime score prediction,
+  - compare at least two numeric ML models for anime score prediction,
   - use CLIP-based Computer Vision to match uploaded anime images,
   - combine all outputs into a final recommendation score,
   - run as a working Hugging Face Space deployment.
@@ -61,17 +61,19 @@ Third block selected:
 
   1. The NLP block analyzes the user input using Keyword Matching, TF-IDF similarity, and OpenAI structured preference extraction.
   2. The Numeric ML block predicts anime scores using structured features such as episodes, members, and mood levels.
-  3. The Computer Vision block uses CLIP to compare an uploaded image with anime titles and metadata.
+  3. The Computer Vision block is optional and uses CLIP to compare an uploaded image with anime titles and metadata. If no image is uploaded, the visual score remains neutral.
   4. The final recommendation score combines NLP score, mood score, ML numeric score, and CLIP visual score.
 
 - Data and output flow between blocks:
-
+```text
 User text input
     ↓
 NLP block
 Keyword Matching + TF-IDF + OpenAI preference extraction
     ↓
 Mood preferences and NLP similarity scores
+    ↓
+Local anime dataset + Jikan API metadata
     ↓
 Numeric ML block
 Linear Regression + Random Forest prediction
@@ -88,6 +90,7 @@ Visual anime match score
 Final weighted recommendation score
     ↓
 Top 5 anime recommendations
+```
 
 ---
 
