@@ -97,20 +97,21 @@ Top 5 anime recommendations
 
 ## 2. Block Documentation
 
-
 ### 2A. ML Numeric Data
 
 #### 2A.1 Data Source(s)
+
 | Entry | Source name or link | Type | Size | Role in this block |
 | --- | --- | --- | --- | --- |
 | 1 | `data/anime_data.csv` | Structured CSV dataset | 80 anime entries | Main numeric dataset for training and prediction |
 | 2 | Engineered mood features in `anime_data.csv` | Numeric feature columns | 4 mood columns per anime | Used as model input features |
-| 3 | User interaction data during inference | Runtime input | One request per user interaction | Used indirectly for final scoring and recommendation context |
+| 3 | User interaction data during inference | Runtime input | One request per user interaction | Used for final recommendation context, not for ML model training |
 
 The dataset was manually created for this project and contains known anime titles with structured metadata. It does not use the semester apartment dataset or dog image dataset.
 
 
 #### 2A.2 Preprocessing and Features
+
 - Cleaning steps:
   - The CSV file was checked for consistent column names.
   - Numeric columns such as `episodes`, `score`, `members`, `dark_tone`, `romance_level`, `action_level`, and `emotional_level` are loaded as numeric values.
@@ -119,7 +120,7 @@ The dataset was manually created for this project and contains known anime title
 - Preprocessing steps:
   - The dataset is loaded with Pandas in [`app.py`](app.py).
   - The ML features are selected in [`ml_model.py`](ml_model.py).
-  - The data is split into training and test data using `train_test_split`.
+  - The data is split into training and test data using `train_test_split`, so that the model can be evaluated on unseen anime entries.
 
 - Feature engineering and selection:
   - Selected numeric features:
@@ -132,10 +133,25 @@ The dataset was manually created for this project and contains known anime title
   - Target variable:
     - `score`
 
-These features were selected because they represent both objective metadata and engineered mood indicators.
+These features were selected because they represent both objective anime metadata and engineered mood indicators. This allows the numeric ML block to support the recommendation system with structured score prediction.
+
+
+#### 2A.2.1 Exploratory Data Analysis
+
+Before training the numeric models, the dataset was analyzed to understand the structure of the anime metadata.
+
+Key findings:
+- The dataset contains 80 anime entries, which is enough for a prototype but still small for robust score prediction.
+- Anime scores are mostly in a relatively high range, because the dataset contains well-known and popular anime titles.
+- The `members` feature has large differences between mainstream and niche anime, which can influence the prediction.
+- Mood features such as `dark_tone`, `romance_level`, `action_level`, and `emotional_level` help connect structured ML data with the NLP-based user preferences.
+- Because anime ratings are subjective, numeric metadata alone cannot fully explain the final anime score.
+
+This EDA supports the decision to combine numeric ML with NLP and Computer Vision instead of relying only on structured score prediction.
 
 
 #### 2A.3 Model Selection
+
 - Models tested:
   - Linear Regression
   - Random Forest Regression
@@ -143,10 +159,11 @@ These features were selected because they represent both objective metadata and 
 - Why these models were chosen:
   - Linear Regression was selected as a simple baseline model.
   - Random Forest Regression was selected because it can model non-linear relationships between metadata features and anime scores.
-  - Comparing both models gives a clear evaluation between a simple model and a stronger ensemble model.
+  - Comparing both models gives a clear evaluation between a simple interpretable model and a stronger ensemble model.
 
 
 #### 2A.4 Model Comparison and Iterations
+
 | Iteration | Objective | Key changes | Models used | Main metric | Change vs previous |
 | --- | --- | --- | --- | --- | --- |
 | 1 | Manual numeric scoring | Used formula based on rating, members, and episodes | No trained ML model | Qualitative check | First baseline |
@@ -155,6 +172,7 @@ These features were selected because they represent both objective metadata and 
 
 
 #### 2A.5 Evaluation and Error Analysis
+
 - Metrics used:
   - MAE: Mean Absolute Error
   - RMSE: Root Mean Squared Error
@@ -171,23 +189,36 @@ These features were selected because they represent both objective metadata and 
     - RMSE: 0.352
     - R2: 0.231
 
+
+
+
+- Interpretation:
+  - Random Forest performed better than Linear Regression based on MAE and RMSE.
+  - The lower MAE and RMSE values show that Random Forest made smaller average prediction errors.
+  - The R2 values are still relatively low, which means that the selected numeric features only explain part of the anime score.
+  - This is expected because anime ratings are subjective and depend on factors such as story quality, animation style, emotional impact, fan community, and personal taste.
+
 - Error patterns and likely causes:
-  - The R2 values are relatively low because the dataset is small and anime scores are subjective.
+  - The dataset is small, which limits the generalization ability of the models.
   - Popularity, episodes, and mood features cannot fully explain user ratings.
   - Some anime with niche audiences may have high quality but lower member counts.
   - Some mainstream anime may have high popularity but not always the highest rating.
+  - Mood features are useful for recommendation context, but they are manually engineered and therefore simplified.
 
 
 #### 2A.6 Integration with Other Block(s)
+
 - Inputs received from other block(s):
   - The final recommendation uses NLP and CV scores together with the numeric ML score.
-  - The mood features used in ML are also connected to the NLP preference extraction.
+  - The NLP block extracts mood-related preferences from the user prompt.
+  - These preferences are compared with the same mood dimensions that are also used as numeric ML features, such as `dark_tone`, `romance_level`, `action_level`, and `emotional_level`.
 
 - Outputs provided to other block(s):
   - The ML block outputs a predicted anime score.
   - This score is normalized and used as `ML Numeric Score`.
-  - The final app combines it with NLP, mood, and CLIP visual scores.
+  - The final app combines it with NLP score, mood score, and optional CLIP visual score.
 
+The ML Numeric Data block therefore contributes a structured prediction signal to the final recommendation. It does not work as a standalone model, but supports the overall decision logic together with NLP and optional Computer Vision.
 
 ### 2B. NLP 
 
