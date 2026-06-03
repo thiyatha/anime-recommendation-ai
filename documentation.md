@@ -189,7 +189,7 @@ This EDA supports the decision to combine numeric ML with NLP and Computer Visio
     - RMSE: 0.352
     - R2: 0.231
 
-
+![Screenshot 1: Anime Recommendation App](screenshots/screenshot_1.png)
 
 
 - Interpretation:
