@@ -79,3 +79,13 @@ cd anime-recommendation-ai
 pip install -r requirements.txt
 python app.py
 ```
+
+---
+
+## Documentation
+
+The full project documentation is available in:
+
+```text
+documentation.md
+```
