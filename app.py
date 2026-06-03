@@ -1,9 +1,5 @@
 # app.py
 # Anime Recommendation AI
-# Uses:
-# - NLP module with Keyword Matching and TF-IDF
-# - Numeric ML module with model comparison
-# - Computer Vision module with CLIP image matching
 
 import gradio as gr
 import pandas as pd
@@ -19,26 +15,35 @@ from cv_model import (
     calculate_clip_visual_scores,
     describe_visual_match,
 )
+from api_data import fetch_anime_metadata
 
 
 DATA_PATH = "data/anime_data.csv"
 
 
 def load_data():
+    # Load the local anime dataset from the repository
     return pd.read_csv(DATA_PATH)
 
 
 def recommend_anime(user_prompt, image):
+    # Load local structured dataset
     df = load_data()
 
+    # Train and compare numeric ML models
     best_model, best_model_name, evaluation_results = train_numeric_models(df)
 
+    # Extract user mood and preferences from text input
     user_mood = extract_user_mood_openai(user_prompt)
+
+    # Calculate TF-IDF similarity between prompt and anime metadata
     tfidf_scores = calculate_tfidf_scores(user_prompt, df)
 
+    # Calculate CLIP image-to-text similarity scores
     clip_result = calculate_clip_visual_scores(image, df)
     visual_scores = clip_result["visual_scores"]
 
+    # Detect whether the user wants image identification instead of normal recommendation
     question_text = str(user_prompt).lower()
 
     is_image_identification_question = (
@@ -55,6 +60,7 @@ def recommend_anime(user_prompt, image):
 
     results = []
 
+    # Calculate recommendation score for every anime in the local dataset
     for index, row in df.iterrows():
         keyword_score = calculate_keyword_score(user_prompt, row)
         tfidf_score = float(tfidf_scores[index])
@@ -109,10 +115,51 @@ def recommend_anime(user_prompt, image):
 
     result_df = pd.DataFrame(results)
 
+    # Select only the final Top 5 recommendations
     result_df = result_df.sort_values(
         by="Final Score",
         ascending=False,
     ).head(5)
+
+    # Enrich only the final Top 5 recommendations with Jikan API metadata.
+    # This avoids unnecessary API calls for the full dataset.
+    external_metadata_rows = []
+
+    for _, recommendation_row in result_df.iterrows():
+        external_data = fetch_anime_metadata(recommendation_row["Title"])
+
+        external_metadata_rows.append(
+            {
+                "External Score": external_data.get(
+                    "external_score",
+                    "Not available",
+                ),
+                "External Popularity": external_data.get(
+                    "external_popularity",
+                    "Not available",
+                ),
+                "External Genres": external_data.get(
+                    "external_genres",
+                    "Not available",
+                ),
+                "External URL": external_data.get(
+                    "external_url",
+                    "Not available",
+                ),
+                "External Image URL": external_data.get(
+                    "external_image_url",
+                    "Not available",
+                ),
+                "External Synopsis": external_data.get(
+                    "external_synopsis",
+                    "Not available",
+                ),
+            }
+        )
+
+    external_metadata_df = pd.DataFrame(external_metadata_rows).reset_index(drop=True)
+    result_df = result_df.reset_index(drop=True)
+    result_df = pd.concat([result_df, external_metadata_df], axis=1)
 
     visual_explanation = describe_visual_match(clip_result)
 
@@ -151,8 +198,15 @@ def recommend_anime(user_prompt, image):
         f"- MAE: {evaluation_results['Random Forest']['MAE']}\n"
         f"- RMSE: {evaluation_results['Random Forest']['RMSE']}\n"
         f"- R2: {evaluation_results['Random Forest']['R2']}\n\n"
+        f"External data source:\n"
+        f"- Jikan API enriches the final Top 5 recommendations with "
+        f"external metadata such as score, popularity, genres, synopsis "
+        f"and image URL.\n"
+        f"- The core recommendation logic still works with the local CSV dataset "
+        f"if the external API is unavailable.\n\n"
         f"The final recommendation combines NLP, mood features, numeric ML "
-        f"predictions and CLIP-based Computer Vision image matching."
+        f"predictions, CLIP-based Computer Vision image matching and external "
+        f"metadata enrichment from the Jikan API."
     )
 
     return result_df, evaluation_text
@@ -164,7 +218,10 @@ demo = gr.Interface(
         gr.Textbox(
             label="Anime preference",
             lines=4,
-            placeholder="Example: I want a dark emotional action anime with strong character development or what anime is this",
+            placeholder=(
+                "Example: I want a dark emotional action anime with strong "
+                "character development or what anime is this"
+            ),
         ),
         gr.Image(
             label="Optional anime image or poster",
@@ -173,12 +230,12 @@ demo = gr.Interface(
     ],
     outputs=[
         gr.Dataframe(label="Top 5 Anime Recommendations"),
-        gr.Textbox(label="NLP, ML and Computer Vision Evaluation"),
+        gr.Textbox(label="NLP, ML, Computer Vision and API Evaluation"),
     ],
     title="Anime Recommendation AI",
     description=(
-        "A multimodal anime recommendation system using NLP, numeric ML "
-        "and CLIP-based Computer Vision image matching."
+        "A multimodal anime recommendation system using NLP, numeric ML, "
+        "CLIP-based Computer Vision image matching and Jikan API metadata enrichment."
     ),
 )
 
