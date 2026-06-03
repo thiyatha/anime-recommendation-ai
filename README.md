@@ -8,6 +8,7 @@ app_file: app.py
 pinned: false
 ---
 
+
 # 🎌 Anime Recommendation AI
 
 Anime Recommendation AI is a multimodal Gradio application that recommends anime based on user preferences, structured anime metadata, and optional image input.
