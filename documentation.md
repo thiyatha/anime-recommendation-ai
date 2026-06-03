@@ -189,7 +189,7 @@ This EDA supports the decision to combine numeric ML with NLP and Computer Visio
     - RMSE: 0.352
     - R2: 0.231
 
-![Screenshot 1: Anime Recommendation App](screenshots/screenshot_1.png)
+![Screenshot 1:](screenshots/screenshot_1.png)
 
 
 - Interpretation:
@@ -290,16 +290,19 @@ The ML Numeric Data block therefore contributes a structured prediction signal t
     - Preferred genres: `['comedy']`
     - Explanation: User expressed a desire for a funny anime, indicating a preference for comedy.
     - Result: The recommendations included comedy and slice-of-life anime such as Barakamon.
+  ![OpenAI comedy recommendation test](screenshots/openai_comedy_test.png)
+
   - Prompt: `give me a romance anime`
     - Result: The recommendations included romance titles such as A Silent Voice, Your Name, Spice and Wolf, Honey and Clover, and Nana.
+  ![Romance recommendation test](screenshots/romance_recommendation_test.png)
   - Prompt: `I want a dark emotional anime with action and strong character development`
     - Result: The recommendations included dark, action, and drama anime such as Attack on Titan, Solo Leveling, Naruto Shippuden, Jujutsu Kaisen, and Neon Genesis Evangelion.
-
+![Dark emotional action recommendation test](screenshots/dark_emotional_action_test.png)
 - Error patterns and likely causes:
   - Keyword Matching can fail if the user uses synonyms that do not appear in the dataset.
   - TF-IDF can give high weight to rare words even if the semantic meaning is not very strong.
-  - OpenAI improves intent understanding, but it depends on the API key and model availability.
-  - If OpenAI is unavailable, the app uses a rule-based fallback.
+  - OpenAI improves intent understanding and provides structured mood and genre extraction.
+  - A rule-based fallback is included to keep the app usable if the API is temporarily unavailable.
   - Short prompts such as `romance` or `funny` can work, but longer prompts usually provide better context.
 
 
@@ -307,6 +310,7 @@ The ML Numeric Data block therefore contributes a structured prediction signal t
 - Inputs received from other block(s):
   - The NLP block uses anime text metadata from `data/anime_data.csv`.
   - The OpenAI intent detection helps decide whether the user wants a normal recommendation or image identification.
+  - The extracted mood values are compared with the same mood dimensions used in the ML Numeric Data block, such as `dark_tone`, `romance_level`, `action_level`, and `emotional_level`.
 
 - Outputs provided to other block(s):
   - Keyword Score
@@ -350,6 +354,7 @@ The NLP output is combined with the Numeric ML score and the CLIP Visual Score t
   - This fits the use case because the user uploads an anime image and the app compares it to text prompts such as anime titles, genres, and visual styles.
   - CLIP supports zero-shot image matching without requiring a large custom image dataset.
   - This makes it suitable for a small project with limited training data.
+  - Because this block uses a pretrained zero-shot vision-language model, no custom training was required. The contribution of this block is the application and integration of CLIP into the recommendation pipeline.
 
 #### 2C.4 Model Comparison and Iterations
 | Iteration | Objective | Key changes | Model(s) used | Main metric | Change vs previous |
@@ -370,6 +375,7 @@ The NLP output is combined with the Numeric ML score and the CLIP Visual Score t
   - Closest visual anime match: Naruto
   - Visual match confidence: 0.646
   - The app correctly identified Naruto as the closest visual match.
+  ![Naruto CLIP test](screenshots/naruto_clip_test.png)
 
 - Error patterns and limitations:
   - CLIP is not a specialized anime character recognition model.
@@ -398,9 +404,9 @@ If the user asks `what anime is this`, the CLIP visual score receives a higher w
 
 ## 3. Deployment
 
-The app is deployed on Hugging Face Spaces using Gradio.
-The main file is app.py.
-The required packages are listed in requirements.txt.
+The app is deployed on Hugging Face Spaces using Gradio.  
+The main file is `app.py`.  
+The required packages are listed in `requirements.txt`.
 
 - Main user flow:
   1. User opens the Hugging Face Space.
@@ -418,8 +424,7 @@ Screenshot 1: OpenAI text recommendation example
   - Preferred genres: `['comedy']`
   - Top anime recommendations
 
-File reference:
-- `screenshots/openai_comedy_test.png`
+![OpenAI comedy recommendation test](screenshots/openai_comedy_test.png)
 
 Screenshot 2: Romance recommendation example  
 - Input: `give me a romance anime`
@@ -427,8 +432,7 @@ Screenshot 2: Romance recommendation example
   - Romance-related recommendations
   - NLP and ML evaluation
 
-File reference:
-- `screenshots/romance_recommendation_test.png`
+![Romance recommendation test](screenshots/romance_recommendation_test.png)
 
 Screenshot 3: Computer Vision image identification example  
 - Input: `what anime is this`
@@ -438,39 +442,65 @@ Screenshot 3: Computer Vision image identification example
   - Closest visual anime match: Naruto
   - Visual match confidence: 0.646
 
-File reference:
-- `screenshots/naruto_clip_test.png`
+![Naruto CLIP visual matching test](screenshots/naruto_clip_test.png)
+
 ---
 
 ## 4. Execution Instructions
 
 - Environment setup:
+
 ```bash
-git clone [(https://github.com/thiyatha/anime-recommendation-ai)]
+git clone https://github.com/thiyatha/anime-recommendation-ai.git
 cd anime-recommendation-ai
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 ```
-- Data setup: data/anime_data.csv
+
+For Windows:
+
+```bash
+venv\Scripts\activate
+```
+
+- Data setup:
+
+```text
+data/anime_data.csv
+```
+
+The dataset is included in the repository and does not need to be downloaded separately.
+
+The app also uses the Jikan API as an external anime metadata source during runtime. No separate API key is required for Jikan.
 
 - Training command(s):
-No separate training command is required.
+
+No separate training command is required.  
 The numeric ML models are trained automatically when the app starts.  
 The training logic is implemented in:
+
 ```text
 ml_model.py
 ```
-- Inference/run command(s): ```python app.py```
+
+- Inference/run command(s):
+
+```bash
+python app.py
+```
 
 - Reproducibility notes:
-The dataset is stored directly in the repository.
-The dataset path is ```data/anime_data.csv```.
-The train/test split uses random_state=42.
-The Random Forest model uses random_state=42.
-CLIP is loaded through Hugging Face Transformers.
-OpenAI extraction depends on the configured API key and selected model.
-If OpenAI is unavailable, the app still runs with the rule-based fallback.
+
+The dataset is stored directly in the repository.  
+The dataset path is `data/anime_data.csv`.  
+The train/test split uses `random_state=42`.  
+The Random Forest model uses `random_state=42`.  
+CLIP is loaded through Hugging Face Transformers.  
+The Jikan API is used during runtime to enrich anime information with external metadata.  
+Because Jikan is an external API, returned metadata may depend on API availability and current API responses.  
+OpenAI extraction uses the configured API key and selected model.  
+If OpenAI is unavailable, the app still runs with the rule-based fallback.  
 The deployed version runs on Hugging Face Spaces.
 
 ---
@@ -481,9 +511,24 @@ Use this section for exceptional work beyond the core requirements.
 
 - [x] Third selected block implemented with strong quality
 - [x] More than two data sources used with clear added value
-- [ ] A core section is done exceptionally well
-- [ ] Extended evaluation
+- [x] A core section is done exceptionally well
+- [x] Extended evaluation
 - [ ] Ethics, bias, or fairness analysis
 - [x] Creative or exceptional use case
 
 Evidence for selected bonus items:
+
+- **Third selected block implemented with strong quality:**  
+  The project uses Computer Vision as a third AI block in addition to NLP and ML Numeric Data. The CV block is implemented with CLIP (`openai/clip-vit-base-patch32`) and allows users to upload anime screenshots or posters. The uploaded image is compared with anime metadata from the dataset, and the resulting CLIP Visual Score is integrated into the final recommendation score.
+
+- **More than two data sources used with clear added value:**  
+  The project uses multiple different data sources: the local structured anime dataset (`data/anime_data.csv`), natural language user input, optional uploaded image input, the OpenAI API for structured preference extraction, and the Jikan API for external anime metadata enrichment. Each data source adds value to the system: the CSV provides structured training data, user input defines preferences, images enable visual matching, OpenAI improves intent understanding, and Jikan adds external metadata.
+
+- **A core section is done exceptionally well:**  
+  The NLP block is implemented with several approaches instead of only one method. It combines Keyword Matching, TF-IDF Cosine Similarity, and OpenAI-based structured preference extraction. This makes the recommendation system more robust because simple keyword matching, classical NLP similarity, and LLM-based interpretation are compared and combined.
+
+- **Extended evaluation:**  
+  The project includes evaluation for all selected blocks. The ML Numeric Data block is evaluated quantitatively using MAE, RMSE, and R2 Score. The NLP block is evaluated qualitatively with several representative prompts such as comedy, romance, and dark emotional action anime requests. The Computer Vision block is evaluated with an uploaded Naruto image and CLIP visual match confidence. Screenshots are included as evidence for the main test cases.
+
+- **Creative or exceptional use case:**  
+  The project goes beyond a standard recommendation system by combining natural language preferences, structured anime metadata, numeric score prediction, and optional image-based anime identification. This creates a multimodal user experience where the user can either describe the anime they want or upload an image to guide the recommendation.
